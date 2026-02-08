@@ -614,6 +614,31 @@ function generateWaveSpawns(waveNumber) {
   return spawns;
 }
 
+// Helper function to find target for a tower
+function findTarget(tower, range, zombies) {
+  // Filter zombies in range
+  const inRange = zombies.filter((zombie) => {
+    if (zombie.isDead || zombie.reachedEnd) return false;
+    const dx = zombie.position.x - tower.position.x;
+    const dz = zombie.position.z - tower.position.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    return dist <= range;
+  });
+
+  if (inRange.length === 0) return null;
+
+  // Find nearest zombie
+  return inRange.reduce((closest, zombie) => {
+    const cDx = closest.position.x - tower.position.x;
+    const cDz = closest.position.z - tower.position.z;
+    const zDx = zombie.position.x - tower.position.x;
+    const zDz = zombie.position.z - tower.position.z;
+    const cDist = Math.sqrt(cDx * cDx + cDz * cDz);
+    const zDist = Math.sqrt(zDx * zDx + zDz * zDz);
+    return zDist < cDist ? zombie : closest;
+  });
+}
+
 // Constants (defined here to avoid circular imports)
 const WAVE_DELAY = 5000; // ms between waves
 const SELL_RETURN_PERCENTAGE = 0.5;
