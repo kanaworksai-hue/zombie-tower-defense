@@ -90,31 +90,28 @@ export function Projectile({ projectile }) {
   return (
     <group ref={projectileRef} position={[projectile.position.x, projectile.position.y, projectile.position.z]}>
       {projectileConfig.geometry === 'sphere' ? (
-        <Sphere
-          args={projectileConfig.args}
-          material-color={projectileConfig.color}
-          material-emissive={projectileConfig.emissive}
-          material-emissiveIntensity={projectileConfig.emissiveIntensity}
-        />
+        <Sphere args={projectileConfig.args}>
+          <meshStandardMaterial
+            color={projectileConfig.color}
+            emissive={projectileConfig.emissive}
+            emissiveIntensity={projectileConfig.emissiveIntensity}
+          />
+        </Sphere>
       ) : (
-        <Box
-          args={projectileConfig.args}
-          rotation={[0, 0, Math.PI / 2]}
-          material-color={projectileConfig.color}
-          material-emissive={projectileConfig.emissive}
-          material-emissiveIntensity={projectileConfig.emissiveIntensity}
-        />
+        <Box args={projectileConfig.args} rotation={[0, 0, Math.PI / 2]}>
+          <meshStandardMaterial
+            color={projectileConfig.color}
+            emissive={projectileConfig.emissive}
+            emissiveIntensity={projectileConfig.emissiveIntensity}
+          />
+        </Box>
       )}
 
       {/* Trail effect for some projectiles */}
       {(projectile.towerType === 'sniper' || projectile.towerType === 'splash') && (
-        <Sphere
-          args={[projectileConfig.args[0] * 0.6, 6, 6]}
-          position={[-0.1, 0, 0]}
-          material-color={projectileConfig.color}
-          material-transparent
-          material-opacity={0.5}
-        />
+        <Sphere args={[projectileConfig.args[0] * 0.6, 6, 6]} position={[-0.1, 0, 0]}>
+          <meshStandardMaterial color={projectileConfig.color} transparent opacity={0.5} />
+        </Sphere>
       )}
     </group>
   );
@@ -161,16 +158,14 @@ export function LaserBeam({ start, end, color }) {
   });
 
   return (
-    <Box
-      ref={beamRef}
-      position={beamData.position}
-      scale={beamData.scale}
-      rotation={beamData.rotation}
-      material-color={color}
-      material-emissive={color}
-      material-emissiveIntensity={0.8}
-      material-transparent
-      material-opacity={0.9}
-    />
+    <Box ref={beamRef} position={beamData.position} scale={beamData.scale} rotation={beamData.rotation}>
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.8}
+        transparent
+        opacity={0.9}
+      />
+    </Box>
   );
 }

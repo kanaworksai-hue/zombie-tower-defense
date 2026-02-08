@@ -79,30 +79,25 @@ export function Tower({ tower }) {
         return (
           <group>
             {/* Base */}
-            <Cylinder
-              args={[0.4, 0.5, 0.3, 8]}
-              position={[0, 0.15, 0]}
-              material-color="#555555"
-            />
+            <Cylinder args={[0.4, 0.5, 0.3, 8]} position={[0, 0.15, 0]}>
+              <meshStandardMaterial color="#555555" />
+            </Cylinder>
             {/* Turret base */}
-            <Cylinder
-              args={[0.35, 0.4, 0.4, 8]}
-              position={[0, 0.5, 0]}
-              material-color={towerColor}
-            />
+            <Cylinder args={[0.35, 0.4, 0.4, 8]} position={[0, 0.5, 0]}>
+              <meshStandardMaterial color={towerColor} />
+            </Cylinder>
             {/* Turret (rotates) */}
             <group ref={turretRef} position={[0, 0.7, 0]}>
-              <Box
-                args={[0.6, 0.25, 0.25]}
-                position={[0.2, 0, 0]}
-                material-color={towerColor}
-              />
+              <Box args={[0.6, 0.25, 0.25]} position={[0.2, 0, 0]}>
+                <meshStandardMaterial color={towerColor} />
+              </Box>
               <Cylinder
                 args={[0.1, 0.1, 0.4, 8]}
                 position={[0.5, 0, 0]}
                 rotation={[0, 0, Math.PI / 2]}
-                material-color="#333333"
-              />
+              >
+                <meshStandardMaterial color="#333333" />
+              </Cylinder>
             </group>
           </group>
         );
@@ -111,37 +106,33 @@ export function Tower({ tower }) {
         return (
           <group>
             {/* Base */}
-            <Cylinder
-              args={[0.45, 0.55, 0.3, 6]}
-              position={[0, 0.15, 0]}
-              material-color="#444444"
-            />
+            <Cylinder args={[0.45, 0.55, 0.3, 6]} position={[0, 0.15, 0]}>
+              <meshStandardMaterial color="#444444" />
+            </Cylinder>
             {/* Turret base */}
-            <Cylinder
-              args={[0.3, 0.35, 0.5, 6]}
-              position={[0, 0.55, 0]}
-              material-color={towerColor}
-            />
+            <Cylinder args={[0.3, 0.35, 0.5, 6]} position={[0, 0.55, 0]}>
+              <meshStandardMaterial color={towerColor} />
+            </Cylinder>
             {/* Turret (rotates) */}
             <group ref={turretRef} position={[0, 0.8, 0]}>
-              <Box
-                args={[1.2, 0.2, 0.2]}
-                position={[0.4, 0, 0]}
-                material-color={towerColor}
-              />
+              <Box args={[1.2, 0.2, 0.2]} position={[0.4, 0, 0]}>
+                <meshStandardMaterial color={towerColor} />
+              </Box>
               <Cylinder
                 args={[0.08, 0.12, 0.8, 8]}
                 position={[0.8, 0, 0]}
                 rotation={[0, 0, Math.PI / 2]}
-                material-color="#222222"
-              />
+              >
+                <meshStandardMaterial color="#222222" />
+              </Cylinder>
               {/* Scope */}
               <Cylinder
                 args={[0.06, 0.06, 0.3, 8]}
                 position={[0.3, 0.15, 0]}
                 rotation={[0, 0, Math.PI / 2]}
-                material-color="#111111"
-              />
+              >
+                <meshStandardMaterial color="#111111" />
+              </Cylinder>
             </group>
           </group>
         );
@@ -150,17 +141,13 @@ export function Tower({ tower }) {
         return (
           <group>
             {/* Base */}
-            <Cylinder
-              args={[0.4, 0.5, 0.3, 8]}
-              position={[0, 0.15, 0]}
-              material-color="#555555"
-            />
+            <Cylinder args={[0.4, 0.5, 0.3, 8]} position={[0, 0.15, 0]}>
+              <meshStandardMaterial color="#555555" />
+            </Cylinder>
             {/* Turret base */}
-            <Box
-              args={[0.5, 0.4, 0.5]}
-              position={[0, 0.5, 0]}
-              material-color={towerColor}
-            />
+            <Box args={[0.5, 0.4, 0.5]} position={[0, 0.5, 0]}>
+              <meshStandardMaterial color={towerColor} />
+            </Box>
             {/* Turret (rotates) */}
             <group ref={turretRef} position={[0, 0.7, 0]}>
               {/* Quad barrels */}
@@ -170,8 +157,9 @@ export function Tower({ tower }) {
                   args={[0.05, 0.05, 0.4, 6]}
                   position={[0.3 + x * 0.5, 0, z * 0.5]}
                   rotation={[0, 0, Math.PI / 2]}
-                  material-color="#333333"
-                />
+                >
+                  <meshStandardMaterial color="#333333" />
+                </Cylinder>
               ))}
             </group>
           </group>
@@ -181,29 +169,28 @@ export function Tower({ tower }) {
         return (
           <group>
             {/* Base */}
-            <Cylinder
-              args={[0.5, 0.6, 0.25, 8]}
-              position={[0, 0.125, 0]}
-              material-color="#555555"
-            />
+            <Cylinder args={[0.5, 0.6, 0.25, 8]} position={[0, 0.125, 0]}>
+              <meshStandardMaterial color="#555555" />
+            </Cylinder>
             {/* Dome */}
             <Sphere
               args={[0.4, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2]}
               position={[0, 0.25, 0]}
-              material-color={towerColor}
-            />
+            >
+              <meshStandardMaterial color={towerColor} />
+            </Sphere>
             {/* Turret (rotates) */}
             <group ref={turretRef} position={[0, 0.5, 0]}>
-              <Box
-                args={[0.3, 0.3, 0.3]}
-                material-color={towerColor}
-              />
+              <Box args={[0.3, 0.3, 0.3]}>
+                <meshStandardMaterial color={towerColor} />
+              </Box>
               <Cylinder
                 args={[0.15, 0.2, 0.3, 8]}
                 position={[0.25, 0, 0]}
                 rotation={[0, 0, Math.PI / 2]}
-                material-color="#aa4444"
-              />
+              >
+                <meshStandardMaterial color="#aa4444" />
+              </Cylinder>
             </group>
           </group>
         );
@@ -212,34 +199,20 @@ export function Tower({ tower }) {
         return (
           <group>
             {/* Base */}
-            <Cylinder
-              args={[0.4, 0.5, 0.3, 8]}
-              position={[0, 0.15, 0]}
-              material-color="#555555"
-            />
+            <Cylinder args={[0.4, 0.5, 0.3, 8]} position={[0, 0.15, 0]}>
+              <meshStandardMaterial color="#555555" />
+            </Cylinder>
             {/* Crystal structure */}
             <group ref={turretRef} position={[0, 0.5, 0]}>
               {/* Central crystal */}
-              <Cylinder
-                args={[0.15, 0.25, 0.6, 6]}
-                material-color={towerColor}
-                material-transparent
-                material-opacity={0.8}
-              />
+              <Cylinder args={[0.15, 0.25, 0.6, 6]}>
+                <meshStandardMaterial color={towerColor} transparent opacity={0.8} />
+              </Cylinder>
               {/* Orbiting crystals */}
               {[0, 1, 2].map((i) => (
-                <Sphere
-                  key={i}
-                  args={[0.1, 8, 8]}
-                  position={[
-                    Math.cos((Date.now() / 1000 + i * 2.09)) * 0.35,
-                    Math.sin((Date.now() / 1000 + i * 2.09)) * 0.2,
-                    Math.sin((Date.now() / 1000 + i * 2.09)) * 0.35
-                  ]}
-                  material-color="#ffffff"
-                  material-emissive={towerColor}
-                  material-emissiveIntensity={0.5}
-                />
+                <Sphere key={i} args={[0.1, 8, 8]} position={[Math.cos((Date.now() / 1000 + i * 2.09)) * 0.35, Math.sin((Date.now() / 1000 + i * 2.09)) * 0.2, Math.sin((Date.now() / 1000 + i * 2.09)) * 0.35]}>
+                  <meshStandardMaterial color="#ffffff" emissive={towerColor} emissiveIntensity={0.5} />
+                </Sphere>
               ))}
             </group>
           </group>
@@ -263,10 +236,9 @@ export function Tower({ tower }) {
             0.05,
             Math.sin((i / tower.level) * Math.PI * 2) * 0.35
           ]}
-          material-color="#ffd700"
-          material-emissive="#ffd700"
-          material-emissiveIntensity={0.3}
-        />
+        >
+          <meshStandardMaterial color="#ffd700" emissive="#ffd700" emissiveIntensity={0.3} />
+        </Sphere>
       );
     }
     return indicators;
@@ -287,23 +259,12 @@ export function Tower({ tower }) {
       {/* Selection highlight */}
       {isSelected && (
         <group>
-          <Cylinder
-            args={[towerType.range, towerType.range, 0.02, 32]}
-            position={[0, 0.01, 0]}
-            rotation={[0, 0, 0]}
-            material-color="#ffff00"
-            material-transparent
-            material-opacity={0.2}
-          />
-          <Cylinder
-            args={[towerType.range, towerType.range, 0.02, 32]}
-            position={[0, 0.02, 0]}
-            rotation={[0, 0, 0]}
-            material-color="#ffff00"
-            material-transparent
-            material-opacity={0.1}
-            material-wireframe
-          />
+          <Cylinder args={[towerType.range, towerType.range, 0.02, 32]} position={[0, 0.01, 0]} rotation={[0, 0, 0]}>
+            <meshStandardMaterial color="#ffff00" transparent opacity={0.2} />
+          </Cylinder>
+          <Cylinder args={[towerType.range, towerType.range, 0.02, 32]} position={[0, 0.02, 0]} rotation={[0, 0, 0]}>
+            <meshStandardMaterial color="#ffff00" transparent opacity={0.1} wireframe />
+          </Cylinder>
         </group>
       )}
     </group>
