@@ -135,7 +135,7 @@ export function GridSelector() {
       {/* Placement preview */}
       {hoveredCell && (
         <group position={[worldPos.x, 0, worldPos.z]}>
-          {/* Selection highlight */}
+          {/* Selection highlight - always show */}
           <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[CELL_SIZE * 0.9, CELL_SIZE * 0.9]} />
             <meshBasicMaterial
@@ -145,42 +145,50 @@ export function GridSelector() {
             />
           </mesh>
 
-          {/* Tower preview */}
-          {isValidPlacement(hoveredCell.x, hoveredCell.z) && (
-            <group>
-              {/* Tower base */}
-              <mesh position={[0, 0.5, 0]} castShadow>
-                <cylinderGeometry args={[0.4, 0.5, 0.3, 8]} />
-                <meshStandardMaterial color="#555555" />
-              </mesh>
+          {/* Tower preview - always show but with different appearance for invalid */}
+          <group>
+            {(() => {
+              const isValid = isValidPlacement(hoveredCell.x, hoveredCell.z);
+              const previewColor = isValid ? getTowerColor() : '#ff0000';
+              const opacity = isValid ? 0.7 : 0.4;
 
-              {/* Tower body */}
-              <mesh position={[0, 1, 0]} castShadow>
-                <cylinderGeometry args={[0.3, 0.35, 0.8, 8]} />
-                <meshStandardMaterial
-                  color={getTowerColor()}
-                  transparent
-                  opacity={0.7}
-                />
-              </mesh>
+              return (
+                <>
+                  {/* Tower base */}
+                  <mesh position={[0, 0.5, 0]} castShadow>
+                    <cylinderGeometry args={[0.4, 0.5, 0.3, 8]} />
+                    <meshStandardMaterial color={isValid ? "#555555" : "#ff0000"} transparent opacity={opacity} />
+                  </mesh>
 
-              {/* Range indicator */}
-              {(() => {
-                const towerType = TOWER_TYPES[selectedTowerType.toUpperCase()];
-                const range = towerType?.range * CELL_SIZE || 4;
-                return (
-                  <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                    <ringGeometry args={[range - 0.1, range, 64]} />
-                    <meshBasicMaterial
-                      color={getTowerColor()}
+                  {/* Tower body */}
+                  <mesh position={[0, 1, 0]} castShadow>
+                    <cylinderGeometry args={[0.3, 0.35, 0.8, 8]} />
+                    <meshStandardMaterial
+                      color={previewColor}
                       transparent
-                      opacity={0.3}
+                      opacity={opacity}
                     />
                   </mesh>
-                );
-              })()}
-            </group>
-          )}
+
+                  {/* Range indicator - only show for valid placement */}
+                  {isValid && (() => {
+                    const towerType = TOWER_TYPES[selectedTowerType.toUpperCase()];
+                    const range = towerType?.range * CELL_SIZE || 4;
+                    return (
+                      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                        <ringGeometry args={[range - 0.1, range, 64]} />
+                        <meshBasicMaterial
+                          color={getTowerColor()}
+                          transparent
+                          opacity={0.3}
+                        />
+                      </mesh>
+                    );
+                  })()}
+                </>
+              );
+            })()}
+          </group>
         </group>
       )}
     </group>

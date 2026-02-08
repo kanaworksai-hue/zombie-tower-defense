@@ -10,8 +10,8 @@ import { INITIAL_GAME_STATE, GRID_SIZE, TOWER_TYPES, ZOMBIE_TYPES } from '../con
 let idCounter = 0;
 export const generateId = (prefix = 'id') => `${prefix}_${++idCounter}_${Date.now()}`;
 
-// Create initial grid
-const createInitialGrid = () => {
+// Create initial grid with path marked
+const createInitialGrid = (pathWaypoints = DEFAULT_PATH) => {
   const grid = [];
   for (let x = 0; x < GRID_SIZE; x++) {
     for (let z = 0; z < GRID_SIZE; z++) {
@@ -24,6 +24,31 @@ const createInitialGrid = () => {
       });
     }
   }
+
+  // Mark path cells
+  if (pathWaypoints && pathWaypoints.length > 1) {
+    for (let i = 0; i < pathWaypoints.length - 1; i++) {
+      const start = pathWaypoints[i];
+      const end = pathWaypoints[i + 1];
+
+      // Mark all cells along this path segment
+      const dx = Math.sign(end.x - start.x);
+      const dz = Math.sign(end.z - start.z);
+      let x = start.x;
+      let z = start.z;
+
+      while (x !== end.x || z !== end.z) {
+        const cell = grid.find((c) => c.x === x && c.z === z);
+        if (cell) cell.isPath = true;
+        x += dx;
+        z += dz;
+      }
+      // Mark the end cell of this segment
+      const endCell = grid.find((c) => c.x === end.x && c.z === end.z);
+      if (endCell) endCell.isPath = true;
+    }
+  }
+
   return grid;
 };
 
@@ -80,7 +105,7 @@ export const useGameStore = create(
         state.towers = [];
         state.zombies = [];
         state.projectiles = [];
-        state.grid = createInitialGrid();
+        state.grid = createInitialGrid(state.path);
         state.gameOverReason = null;
         state.wave = {
           waveNumber: 0,
