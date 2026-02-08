@@ -270,6 +270,49 @@ export const useGameStore = create(
       });
     },
 
+    // Update zombie position (called from game loop)
+    updateZombiePosition: (zombieId, updates) => {
+      set((state) => {
+        const zombie = state.zombies.find((z) => z.id === zombieId);
+        if (!zombie || zombie.isDead || zombie.reachedEnd) return;
+
+        if (updates.pathIndex !== undefined) zombie.pathIndex = updates.pathIndex;
+        if (updates.pathProgress !== undefined) zombie.pathProgress = updates.pathProgress;
+        if (updates.position) {
+          zombie.position.x = updates.position.x;
+          zombie.position.z = updates.position.z;
+        }
+      });
+    },
+
+    // Update tower state (called from game loop)
+    updateTower: (towerId, updates) => {
+      set((state) => {
+        const tower = state.towers.find((t) => t.id === towerId);
+        if (!tower) return;
+
+        if (updates.targetId !== undefined) tower.targetId = updates.targetId;
+        if (updates.lastFired !== undefined) tower.lastFired = updates.lastFired;
+      });
+    },
+
+    // Update projectile position (called from game loop)
+    updateProjectile: (projectileId, updates) => {
+      set((state) => {
+        const projectile = state.projectiles.find((p) => p.id === projectileId);
+        if (!projectile) return;
+
+        if (updates.position) {
+          projectile.position.x = updates.position.x;
+          projectile.position.y = updates.position.y;
+          projectile.position.z = updates.position.z;
+        }
+        if (updates.targetPosition) {
+          projectile.targetPosition = { ...updates.targetPosition };
+        }
+      });
+    },
+
     // Remove dead zombies
     cleanupDeadZombies: () => {
       set((state) => {

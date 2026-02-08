@@ -27,6 +27,7 @@ export function GameLoop() {
   const damageZombie = useGameStore((state) => state.damageZombie);
   const slowZombie = useGameStore((state) => state.slowZombie);
   const zombieReachedEnd = useGameStore((state) => state.zombieReachedEnd);
+  const updateZombiePosition = useGameStore((state) => state.updateZombiePosition);
   const createProjectile = useGameStore((state) => state.createProjectile);
   const removeProjectile = useGameStore((state) => state.removeProjectile);
   const updateWave = useGameStore((state) => state.updateWave);
@@ -68,28 +69,39 @@ export function GameLoop() {
 
         // Update progress
         const moveAmount = (currentSpeed * deltaTime) / distance;
-        zombie.pathProgress += moveAmount;
+        let newPathProgress = zombie.pathProgress + moveAmount;
+        let newPathIndex = zombie.pathIndex;
+        let newPosition = { ...zombie.position };
 
-        if (zombie.pathProgress >= 1) {
+        if (newPathProgress >= 1) {
           // Reached next waypoint
-          zombie.pathIndex++;
-          zombie.pathProgress = 0;
+          newPathIndex++;
+          newPathProgress = 0;
 
-          if (zombie.pathIndex >= path.length - 1) {
+          if (newPathIndex >= path.length - 1) {
             zombieReachedEnd(zombie.id);
+            return;
           }
         } else {
           // Interpolate position
-          const newX = currentWaypoint.x + dx * zombie.pathProgress;
-          const newZ = currentWaypoint.z + dz * zombie.pathProgress;
-
-          zombie.position.x = newX;
-          zombie.position.z = newZ;
+          newPosition.x = currentWaypoint.x + dx * newPathProgress;
+          newPosition.z = currentWaypoint.z + dz * newPathProgress;
         }
+
+        // Update zombie position through store action
+        updateZombiePosition(zombie.id, {
+          pathIndex: newPathIndex,
+          pathProgress: newPathProgress,
+          position: newPosition,
+        });
       });
     },
-    [zombies, path, zombieReachedEnd]
+    [zombies, path, zombieReachedEnd, updateZombiePosition]
   );
+
+  // Tower and projectile update actions from store
+  const updateTower = useGameStore((state) => state.updateTower);
+  const updateProjectile = useGameStore((state) => state.updateProjectile);
 
   /**
    * Update tower targeting and firing
@@ -124,16 +136,25 @@ export function GameLoop() {
           }
         });
 
-        tower.targetId = target ? target.id : null;
+        const newTargetId = target ? target.id : null;
+        let newLastFired = tower.lastFired;
 
         // Fire if we have a target and cooldown is ready
         if (target && now - tower.lastFired >= fireInterval) {
           createProjectile(tower.id, target.id, effectiveDamage);
-          tower.lastFired = now;
+          newLastFired = now;
+        }
+
+        // Update tower through store action
+        if (tower.targetId !== newTargetId || tower.lastFired !== newLastFired) {
+          updateTower(tower.id, {
+            targetId: newTargetId,
+            lastFired: newLastFired,
+          });
         }
       });
     },
-    [towers, zombies, createProjectile]
+    [towers, zombies, createProjectile, updateTower]
   );
 
   /**
@@ -151,8 +172,10 @@ export function GameLoop() {
           return;
         }
 
-        // Update target position
-        projectile.targetPosition = { ...target.position };
+        // Update target position through store action
+        updateProjectile(projectile.id, {
+          targetPosition: { ...target.position },
+        });
 
         // Move towards target
         const dx = projectile.targetPosition.x - projectile.position.x;
@@ -192,16 +215,21 @@ export function GameLoop() {
         } else {
           // Move projectile
           const t = moveAmount / distance;
-          projectile.position.x += dx * t;
-          projectile.position.y += dy * t;
-          projectile.position.z += dz * t;
+          updateProjectile(projectile.id, {
+            position: {
+              x: projectile.position.x + dx * t,
+              y: projectile.position.y + dy * t,
+              z: projectile.position.z + dz * t,
+            },
+            targetPosition: { ...target.position },
+          });
         }
       });
 
       // Remove hit/missed projectiles
       projectilesToRemove.forEach((id) => removeProjectile(id));
     },
-    [projectiles, zombies, towers, damageZombie, slowZombie, removeProjectile]
+    [projectiles, zombies, towers, damageZombie, slowZombie, removeProjectile, updateProjectile]
   );
 
   /**
