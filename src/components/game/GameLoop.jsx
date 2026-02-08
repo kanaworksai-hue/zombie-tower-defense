@@ -33,72 +33,6 @@ export function GameLoop() {
   const updateWave = useGameStore((state) => state.updateWave);
   const cleanupDeadZombies = useGameStore((state) => state.cleanupDeadZombies);
 
-  /**
-   * Update zombie positions along the path
-   */
-  const updateZombies = useCallback(
-    (deltaTime) => {
-      const now = Date.now();
-
-      zombies.forEach((zombie) => {
-        if (zombie.isDead || zombie.reachedEnd) return;
-
-        const zombieType = ZOMBIE_TYPES[zombie.typeId.toUpperCase()];
-        if (!zombieType) return;
-
-        // Check slow effect
-        let currentSpeed = zombieType.speed;
-        if (now < zombie.slowEndTime) {
-          currentSpeed *= zombie.slowFactor;
-        }
-
-        // Get current and next waypoint
-        const currentWaypoint = path[zombie.pathIndex];
-        const nextWaypoint = path[zombie.pathIndex + 1];
-
-        if (!nextWaypoint) {
-          // Reached end of path
-          zombieReachedEnd(zombie.id);
-          return;
-        }
-
-        // Move towards next waypoint
-        const dx = nextWaypoint.x - currentWaypoint.x;
-        const dz = nextWaypoint.z - currentWaypoint.z;
-        const distance = Math.sqrt(dx * dx + dz * dz);
-
-        // Update progress
-        const moveAmount = (currentSpeed * deltaTime) / distance;
-        let newPathProgress = zombie.pathProgress + moveAmount;
-        let newPathIndex = zombie.pathIndex;
-        let newPosition = { ...zombie.position };
-
-        if (newPathProgress >= 1) {
-          // Reached next waypoint
-          newPathIndex++;
-          newPathProgress = 0;
-
-          if (newPathIndex >= path.length - 1) {
-            zombieReachedEnd(zombie.id);
-            return;
-          }
-        } else {
-          // Interpolate position
-          newPosition.x = currentWaypoint.x + dx * newPathProgress;
-          newPosition.z = currentWaypoint.z + dz * newPathProgress;
-        }
-
-        // Update zombie position through store action
-        updateZombiePosition(zombie.id, {
-          pathIndex: newPathIndex,
-          pathProgress: newPathProgress,
-          position: newPosition,
-        });
-      });
-    },
-    [zombies, path, zombieReachedEnd, updateZombiePosition]
-  );
-
   // Tower and projectile update actions from store
   const updateTower = useGameStore((state) => state.updateTower);
   const updateProjectile = useGameStore((state) => state.updateProjectile);
@@ -109,6 +43,11 @@ export function GameLoop() {
   const updateTowers = useCallback(
     (deltaTime) => {
       const now = Date.now();
+
+      // Get zombies from window.zombieManager if available
+      const zombieManager = typeof window !== 'undefined' ? window.zombieManager : null;
+      const activeZombies = zombieManager ?
+        (zombieManager.getAllZombies ? zombieManager.getAllZombies() : []) : [];
 
       towers.forEach((tower) => {
         const towerType = TOWER_TYPES[tower.typeId.toUpperCase()];
@@ -125,7 +64,7 @@ export function GameLoop() {
         let minDistance = Infinity;
 
         // Simple targeting: closest zombie
-        zombies.forEach((zombie) => {
+        activeZombies.forEach((zombie) => {
           if (zombie.isDead || zombie.reachedEnd) return;
 
           const distance = getDistance(tower.position, zombie.position);
@@ -154,7 +93,7 @@ export function GameLoop() {
         }
       });
     },
-    [towers, zombies, createProjectile, updateTower]
+    [towers, createProjectile, updateTower]
   );
 
   /**
@@ -164,8 +103,12 @@ export function GameLoop() {
     (deltaTime) => {
       const projectilesToRemove = [];
 
+      // Get zombies from zombieManager for accurate positions
+      const zombieManager = typeof window !== 'undefined' ? window.zombieManager : null;
+      const activeZombies = zombieManager ? zombieManager.getAllZombies() : [];
+
       projectiles.forEach((projectile) => {
-        const target = zombies.find((z) => z.id === projectile.targetId);
+        const target = activeZombies.find((z) => z.id === projectile.targetId);
 
         if (!target || target.isDead || target.reachedEnd) {
           projectilesToRemove.push(projectile.id);
@@ -186,17 +129,25 @@ export function GameLoop() {
         const moveAmount = projectile.speed * deltaTime;
 
         if (moveAmount >= distance) {
-          // Hit target
-          damageZombie(target.id, projectile.damage);
+          // Hit target - apply damage through zombieManager if available
+          if (zombieManager && zombieManager.damageZombie) {
+            zombieManager.damageZombie(target.id, projectile.damage);
+          } else {
+            damageZombie(target.id, projectile.damage);
+          }
 
           // Handle splash damage
           if (projectile.isSplash && projectile.splashRadius > 0) {
-            zombies.forEach((zombie) => {
+            activeZombies.forEach((zombie) => {
               if (zombie.id !== target.id && !zombie.isDead && !zombie.reachedEnd) {
                 const dist = getDistance(target.position, zombie.position);
                 if (dist <= projectile.splashRadius) {
                   const splashDamage = projectile.damage * (1 - dist / projectile.splashRadius);
-                  damageZombie(zombie.id, splashDamage);
+                  if (zombieManager && zombieManager.damageZombie) {
+                    zombieManager.damageZombie(zombie.id, splashDamage);
+                  } else {
+                    damageZombie(zombie.id, splashDamage);
+                  }
                 }
               }
             });
@@ -207,7 +158,11 @@ export function GameLoop() {
           if (tower) {
             const towerType = TOWER_TYPES[tower.typeId.toUpperCase()];
             if (towerType.id === 'freeze' && towerType.slowFactor) {
-              slowZombie(target.id, towerType.slowFactor, towerType.slowDuration);
+              if (zombieManager && zombieManager.applyStatusEffect) {
+                zombieManager.applyStatusEffect(target.id, 'SLOW');
+              } else {
+                slowZombie(target.id, towerType.slowFactor, towerType.slowDuration);
+              }
             }
           }
 
@@ -229,7 +184,7 @@ export function GameLoop() {
       // Remove hit/missed projectiles
       projectilesToRemove.forEach((id) => removeProjectile(id));
     },
-    [projectiles, zombies, towers, damageZombie, slowZombie, removeProjectile, updateProjectile]
+    [projectiles, towers, damageZombie, slowZombie, removeProjectile, updateProjectile]
   );
 
   /**
@@ -241,11 +196,11 @@ export function GameLoop() {
     // Cap delta time to prevent large jumps
     const cappedDelta = Math.min(deltaTime, 0.1);
 
-    // Update wave spawns
+    // Update wave spawns (handled by gameStore)
     updateWave(cappedDelta);
 
-    // Update game entities
-    updateZombies(cappedDelta);
+    // Update towers and projectiles only
+    // Zombie movement is handled by ZombieManager component
     updateTowers(cappedDelta);
     updateProjectiles(cappedDelta);
 

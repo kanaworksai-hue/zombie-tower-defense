@@ -5,9 +5,11 @@
 
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useGameStore } from '../../stores/gameStore';
 import Zombie from './Zombie.jsx';
 import { generateWave, shouldSpawnNextWave } from './WaveSystem.js';
 import { calculateZombieStats } from './ZombieTypes.js';
+import { gridToWorld } from '../../utils/math.js';
 
 /**
  * Generate a unique ID for zombies
@@ -17,25 +19,97 @@ function generateZombieId() {
 }
 
 /**
+ * Convert path from grid coordinates to world coordinates
+ * @param {Array} path - Array of grid coordinates
+ * @returns {Array} Array of world coordinates
+ */
+function convertPathToWorldCoordinates(path) {
+  if (!path || path.length === 0) return [];
+  return path.map((point) => gridToWorld(point.x, point.z));
+}
+
+/**
  * ZombieManager component
  */
 export function ZombieManager({
-  waypoints,
-  currentWave,
-  setCurrentWave,
-  waveNumber,
-  setWaveNumber,
-  isPlaying,
-  isPaused,
   onZombieReachEnd,
   onZombieKilled,
   onWaveComplete,
 }) {
+  // Get game state from store
+  const isPlaying = useGameStore((state) => state.isPlaying);
+  const isPaused = useGameStore((state) => state.isPaused);
+  const path = useGameStore((state) => state.path);
+  const wave = useGameStore((state) => state.wave);
+  const startNextWave = useGameStore((state) => state.startNextWave);
+
+  // Convert grid path to world coordinates
+  const waypoints = convertPathToWorldCoordinates(path);
+
   const [zombies, setZombies] = useState([]);
   const [spawnQueue, setSpawnQueue] = useState([]);
+  const [currentWaveNumber, setCurrentWaveNumber] = useState(0);
   const spawnTimer = useRef(0);
   const waveStartTime = useRef(0);
   const isSpawning = useRef(false);
+  const zombiesRef = useRef(zombies);
+
+  // Get store actions for syncing zombies
+  const spawnZombieInStore = useGameStore((state) => state.spawnZombie);
+  const updateZombiePositionInStore = useGameStore((state) => state.updateZombiePosition);
+  const zombieReachedEndInStore = useGameStore((state) => state.zombieReachedEnd);
+  const damageZombieInStore = useGameStore((state) => state.damageZombie);
+
+  // Keep zombiesRef in sync with zombies state
+  useEffect(() => {
+    zombiesRef.current = zombies;
+  }, [zombies]);
+
+  // Sync local zombies to store for tower targeting
+  useEffect(() => {
+    // Clear store zombies and re-add current ones
+    const storeZombies = useGameStore.getState().zombies;
+
+    // Remove store zombies that are not in local state
+    storeZombies.forEach((z) => {
+      const localZombie = zombies.find((lz) => lz.id === z.id);
+      if (!localZombie) {
+        // Zombie was removed locally, mark as dead in store
+        damageZombieInStore(z.id, 99999);
+      }
+    });
+
+    // Add local zombies to store if not present
+    zombies.forEach((zombie) => {
+      const storeZombie = storeZombies.find((sz) => sz.id === zombie.id);
+      if (!storeZombie) {
+        // Need to add to store - use spawnZombie but we need to override the ID
+        // Instead, directly push to store state
+        useGameStore.setState((state) => {
+          state.zombies.push({
+            id: zombie.id,
+            typeId: zombie.typeId,
+            position: { ...zombie.position },
+            health: zombie.health,
+            maxHealth: zombie.maxHealth,
+            pathIndex: zombie.pathIndex,
+            pathProgress: zombie.pathProgress,
+            isDead: zombie.isDead,
+            reachedEnd: zombie.reachedEnd,
+            slowFactor: 1,
+            slowEndTime: 0,
+          });
+        });
+      } else {
+        // Update existing store zombie position
+        updateZombiePositionInStore(zombie.id, {
+          pathIndex: zombie.pathIndex,
+          pathProgress: zombie.pathProgress,
+          position: zombie.position,
+        });
+      }
+    });
+  }, [zombies, damageZombieInStore, updateZombiePositionInStore]);
 
   /**
    * Start a new wave
@@ -56,16 +130,11 @@ export function ZombieManager({
     });
 
     setSpawnQueue(spawnList);
-    setCurrentWave({
-      waveNumber: waveNum,
-      isActive: true,
-      isComplete: false,
-      zombiesRemaining: spawnList.length,
-    });
+    setCurrentWaveNumber(waveNum);
     spawnTimer.current = 0;
     waveStartTime.current = Date.now();
     isSpawning.current = true;
-  }, [setCurrentWave]);
+  }, []);
 
   /**
    * Spawn a single zombie
@@ -73,12 +142,15 @@ export function ZombieManager({
   const spawnZombie = useCallback((typeId) => {
     const { calculateZombieStats: calcStats, getZombieConfig } = require('./ZombieTypes.js');
     const config = getZombieConfig(typeId);
-    const stats = calcStats(config, waveNumber);
+    const stats = calcStats(config, currentWaveNumber);
+
+    // Use world coordinates from waypoints
+    const startPosition = waypoints.length > 0 ? waypoints[0] : { x: 0, y: 0, z: 0 };
 
     const newZombie = {
       id: generateZombieId(),
       typeId,
-      position: { x: waypoints[0].x, y: 0, z: waypoints[0].z },
+      position: { x: startPosition.x, y: 0, z: startPosition.z },
       health: stats.health,
       maxHealth: stats.health,
       speed: stats.speed,
@@ -94,37 +166,35 @@ export function ZombieManager({
 
     setZombies((prev) => [...prev, newZombie]);
     return newZombie.id;
-  }, [waypoints, waveNumber]);
+  }, [waypoints, currentWaveNumber]);
 
   /**
    * Handle zombie death
    */
   const handleZombieDeath = useCallback((zombieId) => {
-    const zombie = zombies.find((z) => z.id === zombieId);
-    if (zombie && !zombie.isDead) {
-      zombie.isDead = true;
-      onZombieKilled?.(zombie);
-
-      setZombies((prev) =>
-        prev.filter((z) => z.id !== zombieId)
-      );
-    }
-  }, [zombies, onZombieKilled]);
+    setZombies((prev) => {
+      const zombie = prev.find((z) => z.id === zombieId);
+      if (zombie && !zombie.isDead) {
+        onZombieKilled?.(zombie);
+        return prev.filter((z) => z.id !== zombieId);
+      }
+      return prev;
+    });
+  }, [onZombieKilled]);
 
   /**
    * Handle zombie reaching the end
    */
   const handleZombieReachEnd = useCallback((zombieId) => {
-    const zombie = zombies.find((z) => z.id === zombieId);
-    if (zombie && !zombie.reachedEnd) {
-      zombie.reachedEnd = true;
-      onZombieReachEnd?.(zombie);
-
-      setZombies((prev) =>
-        prev.filter((z) => z.id !== zombieId)
-      );
-    }
-  }, [zombies, onZombieReachEnd]);
+    setZombies((prev) => {
+      const zombie = prev.find((z) => z.id === zombieId);
+      if (zombie && !zombie.reachedEnd) {
+        onZombieReachEnd?.(zombie);
+        return prev.filter((z) => z.id !== zombieId);
+      }
+      return prev;
+    });
+  }, [onZombieReachEnd]);
 
   /**
    * Apply damage to a zombie
@@ -157,21 +227,21 @@ export function ZombieManager({
    * Get zombie by ID
    */
   const getZombie = useCallback((zombieId) => {
-    return zombies.find((z) => z.id === zombieId);
-  }, [zombies]);
+    return zombiesRef.current.find((z) => z.id === zombieId);
+  }, []);
 
   /**
    * Get all zombies in range of a point
    */
   const getZombiesInRange = useCallback((position, range) => {
-    return zombies.filter((z) => {
+    return zombiesRef.current.filter((z) => {
       if (z.isDead || z.reachedEnd) return false;
       const dx = z.position.x - position.x;
       const dz = z.position.z - position.z;
       const distance = Math.sqrt(dx * dx + dz * dz);
       return distance <= range;
     });
-  }, [zombies]);
+  }, []);
 
   /**
    * Get closest zombie to a point
@@ -180,7 +250,7 @@ export function ZombieManager({
     let closest = null;
     let closestDistance = Infinity;
 
-    zombies.forEach((z) => {
+    zombiesRef.current.forEach((z) => {
       if (z.isDead || z.reachedEnd) return;
       const dx = z.position.x - position.x;
       const dz = z.position.z - position.z;
@@ -193,7 +263,14 @@ export function ZombieManager({
     });
 
     return closest;
-  }, [zombies]);
+  }, []);
+
+  /**
+   * Get all active zombies
+   */
+  const getAllZombies = useCallback(() => {
+    return zombiesRef.current.filter((z) => !z.isDead && !z.reachedEnd);
+  }, []);
 
   // Expose methods to parent via ref-like pattern
   useEffect(() => {
@@ -204,10 +281,11 @@ export function ZombieManager({
         getZombie,
         getZombiesInRange,
         getClosestZombie,
+        getAllZombies,
         startWave,
       };
     }
-  }, [damageZombie, applyStatusEffect, getZombie, getZombiesInRange, getClosestZombie, startWave]);
+  }, [damageZombie, applyStatusEffect, getZombie, getZombiesInRange, getClosestZombie, getAllZombies, startWave]);
 
   // Main game loop
   useFrame((state, delta) => {
@@ -316,19 +394,18 @@ export function ZombieManager({
     });
 
     // Check for wave completion
-    if (currentWave?.isActive && !isSpawning.current && zombies.length === 0) {
-      setCurrentWave((prev) => ({ ...prev, isComplete: true, isActive: false }));
-      onWaveComplete?.(waveNumber);
+    if (isSpawning.current && spawnQueue.length === 0 && zombies.length === 0) {
+      isSpawning.current = false;
+      onWaveComplete?.(currentWaveNumber);
     }
   });
 
   // Auto-start first wave
   useEffect(() => {
-    if (isPlaying && waveNumber === 0 && !currentWave?.isActive) {
-      setWaveNumber(1);
+    if (isPlaying && currentWaveNumber === 0 && !isSpawning.current) {
       startWave(1);
     }
-  }, [isPlaying, waveNumber, currentWave, startWave, setWaveNumber]);
+  }, [isPlaying, currentWaveNumber, isSpawning, startWave]);
 
   return (
     <>

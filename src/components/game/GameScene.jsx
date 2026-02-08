@@ -94,6 +94,7 @@ function Lighting() {
 function SceneContent() {
   const isPlaying = useGameStore((state) => state.isPlaying);
   const isPaused = useGameStore((state) => state.isPaused);
+  const path = useGameStore((state) => state.path);
 
   return (
     <>
@@ -111,7 +112,7 @@ function SceneContent() {
 
       {/* Game entities */}
       <TowerManager />
-      <ZombieManager />
+      <ZombieManager waypoints={path} isPlaying={isPlaying} isPaused={isPaused} />
       <ProjectileManager />
 
       {/* Game loop - handles updates */}
