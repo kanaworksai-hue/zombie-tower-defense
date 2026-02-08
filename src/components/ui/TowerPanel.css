@@ -1,0 +1,322 @@
+/**
+ * Tower Selection Panel styles
+ * Displays available towers for purchase
+ */
+
+.tower-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(26, 26, 46, 0.98) 0%, rgba(26, 26, 46, 0.9) 80%, transparent 100%);
+  padding: 1.5rem;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.tower-panel__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+/* Tower grid */
+.tower-panel__grid {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Individual tower button */
+.tower-button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  min-width: 100px;
+  background: linear-gradient(145deg, #2a2a3e 0%, #1e1e32 100%);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tower-button:hover:not(.tower-button--disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tower-button--selected {
+  border-color: #f1c40f !important;
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.3) !important;
+  background: linear-gradient(145deg, #3a3a4e 0%, #2e2e42 100%);
+}
+
+.tower-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tower-button--disabled .tower-button__icon {
+  filter: grayscale(100%);
+}
+
+/* Tower icon */
+.tower-button__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.tower-button:hover:not(.tower-button--disabled) .tower-button__icon {
+  transform: scale(1.1);
+}
+
+/* Tower type colors */
+.tower-button__icon--basic {
+  background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+}
+
+.tower-button__icon--sniper {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.tower-button__icon--rapid {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.tower-button__icon--splash {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.tower-button__icon--freeze {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+/* Tower info */
+.tower-button__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ecf0f1;
+  text-align: center;
+}
+
+.tower-button__cost {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f1c40f;
+}
+
+.tower-button__cost--unaffordable {
+  color: #e74c3c;
+}
+
+/* Hotkey badge */
+.tower-button__hotkey {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background: #34495e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ecf0f1;
+  border: 2px solid #2a2a3e;
+}
+
+/* Tooltip */
+.tower-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  width: 220px;
+  background: rgba(26, 26, 46, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.tower-button:hover .tower-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-15px);
+}
+
+.tower-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: rgba(26, 26, 46, 0.98);
+}
+
+.tower-tooltip__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tower-tooltip__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.tower-tooltip__title {
+  flex: 1;
+}
+
+.tower-tooltip__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ecf0f1;
+  margin: 0;
+}
+
+.tower-tooltip__cost {
+  font-size: 0.9rem;
+  color: #f1c40f;
+  font-weight: 600;
+}
+
+.tower-tooltip__description {
+  font-size: 0.85rem;
+  color: #95a5a6;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+/* Stats grid */
+.tower-tooltip__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.tower-tooltip__stat {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.tower-tooltip__stat-label {
+  font-size: 0.7rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tower-tooltip__stat-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ecf0f1;
+}
+
+/* Selected tower info panel */
+.tower-panel__info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tower-panel__info-text {
+  font-size: 0.9rem;
+  color: #95a5a6;
+}
+
+.tower-panel__info-text strong {
+  color: #f1c40f;
+}
+
+.tower-panel__cancel-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: #e74c3c;
+  background: transparent;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tower-panel__cancel-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tower-panel {
+    padding: 1rem;
+  }
+
+  .tower-panel__grid {
+    gap: 0.5rem;
+  }
+
+  .tower-button {
+    min-width: 80px;
+    padding: 0.75rem;
+  }
+
+  .tower-button__icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .tower-button__name {
+    font-size: 0.75rem;
+  }
+
+  .tower-button__cost {
+    font-size: 0.8rem;
+  }
+
+  .tower-tooltip {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .tower-button__hotkey {
+    display: none;
+  }
+}

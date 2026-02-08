@@ -1,0 +1,261 @@
+/**
+ * Level Selection Screen styles
+ */
+
+.level-select {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* Header */
+.level-select__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #2ecc71;
+}
+
+.level-select__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2ecc71;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+}
+
+.level-select__back-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #95a5a6;
+  background: transparent;
+  border: 2px solid #95a5a6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-select__back-btn:hover {
+  color: #ecf0f1;
+  border-color: #ecf0f1;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Level grid */
+.level-select__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Level card */
+.level-card {
+  position: relative;
+  background: linear-gradient(145deg, #2a2a3e 0%, #1e1e32 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.level-card:hover:not(.level-card--locked) {
+  transform: translateY(-5px);
+  border-color: #2ecc71;
+  box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);
+}
+
+.level-card--locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.level-card--locked::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Level thumbnail */
+.level-card__thumbnail {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #3d3d5c 0%, #2a2a3e 100%);
+  overflow: hidden;
+}
+
+.level-card__preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-card__map-icon {
+  font-size: 4rem;
+  opacity: 0.3;
+}
+
+/* Level number badge */
+.level-card__number {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  box-shadow: 0 2px 10px rgba(231, 76, 60, 0.4);
+}
+
+.level-card--completed .level-card__number {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  box-shadow: 0 2px 10px rgba(46, 204, 113, 0.4);
+}
+
+/* Lock icon */
+.level-card__lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: #95a5a6;
+  z-index: 1;
+}
+
+/* Level info */
+.level-card__info {
+  padding: 1.5rem;
+}
+
+.level-card__name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ecf0f1;
+  margin: 0 0 0.5rem 0;
+}
+
+.level-card__description {
+  font-size: 0.9rem;
+  color: #95a5a6;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+/* Stats */
+.level-card__stats {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.level-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.level-card__stat-label {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-card__stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1c40f;
+}
+
+.level-card__stat-value--none {
+  color: #7f8c8d;
+}
+
+/* Difficulty indicator */
+.level-card__difficulty {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.level-card__difficulty-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2c3e50;
+}
+
+.level-card__difficulty-dot--active {
+  background: #e74c3c;
+}
+
+/* Completion badge */
+.level-card__completed-badge {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  background: #2ecc71;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .level-select__header {
+    padding: 1rem;
+  }
+
+  .level-select__title {
+    font-size: 1.5rem;
+  }
+
+  .level-select__grid {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+}

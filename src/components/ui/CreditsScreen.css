@@ -1,0 +1,216 @@
+/**
+ * Credits Screen styles
+ */
+
+.credits-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* Header */
+.credits-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #9b59b6;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.credits-header__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #9b59b6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(155, 89, 182, 0.3);
+}
+
+.credits-header__back-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #95a5a6;
+  background: transparent;
+  border: 2px solid #95a5a6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.credits-header__back-btn:hover {
+  color: #ecf0f1;
+  border-color: #ecf0f1;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Content */
+.credits-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Game logo/title */
+.credits-game-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #e74c3c;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  text-shadow:
+    0 0 10px rgba(231, 76, 60, 0.5),
+    0 0 20px rgba(231, 76, 60, 0.3);
+}
+
+.credits-game-subtitle {
+  font-size: 1.2rem;
+  color: #2ecc71;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-bottom: 3rem;
+  opacity: 0.8;
+}
+
+/* Credit sections */
+.credits-section {
+  margin-bottom: 2.5rem;
+}
+
+.credits-section__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1c40f;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1rem;
+}
+
+.credits-section__names {
+  font-size: 1.3rem;
+  color: #ecf0f1;
+  line-height: 1.8;
+}
+
+.credits-section__name {
+  display: inline-block;
+  margin: 0 0.5rem;
+}
+
+/* Special thanks */
+.credits-thanks {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.credits-thanks__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2ecc71;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 1rem;
+}
+
+.credits-thanks__text {
+  font-size: 1rem;
+  color: #95a5a6;
+  line-height: 1.6;
+}
+
+/* Tech stack */
+.credits-tech {
+  margin-top: 2rem;
+}
+
+.credits-tech__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.credits-tech__stack {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.credits-tech__item {
+  padding: 0.5rem 1rem;
+  background: rgba(52, 152, 219, 0.2);
+  border: 1px solid rgba(52, 152, 219, 0.3);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #3498db;
+}
+
+/* Footer */
+.credits-footer {
+  padding: 2rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.credits-footer__text {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.credits-footer__heart {
+  color: #e74c3c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .credits-header {
+    padding: 1rem;
+  }
+
+  .credits-header__title {
+    font-size: 1.5rem;
+  }
+
+  .credits-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .credits-game-title {
+    font-size: 2rem;
+  }
+
+  .credits-game-subtitle {
+    font-size: 1rem;
+  }
+
+  .credits-section__names {
+    font-size: 1.1rem;
+  }
+}

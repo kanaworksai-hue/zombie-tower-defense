@@ -1,0 +1,331 @@
+/**
+ * In-Game HUD styles
+ * Displays health, money, wave info, and enemy count
+ */
+
+.game-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Top bar container */
+.game-hud__top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  pointer-events: auto;
+}
+
+/* Stat groups */
+.game-hud__left-group,
+.game-hud__center-group,
+.game-hud__right-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.game-hud__center-group {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Individual stat items */
+.game-hud__stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(26, 26, 46, 0.9);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-hud__stat-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.game-hud__stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-hud__stat-label {
+  font-size: 0.7rem;
+  color: #95a5a6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.game-hud__stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ecf0f1;
+}
+
+/* Health specific */
+.game-hud__stat--health .game-hud__stat-value {
+  color: #e74c3c;
+}
+
+/* Money specific */
+.game-hud__stat--money .game-hud__stat-value {
+  color: #f1c40f;
+}
+
+/* Wave specific */
+.game-hud__stat--wave .game-hud__stat-value {
+  color: #2ecc71;
+}
+
+/* Enemy count specific */
+.game-hud__stat--enemies .game-hud__stat-value {
+  color: #9b59b6;
+}
+
+/* Wave progress bar */
+.game-hud__wave-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(26, 26, 46, 0.9);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 200px;
+}
+
+.game-hud__wave-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+.game-hud__wave-number {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.game-hud__progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.game-hud__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Speed controls */
+.game-hud__speed-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.game-hud__speed-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #95a5a6;
+  background: rgba(26, 26, 46, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.game-hud__speed-btn:hover {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.game-hud__speed-btn--active {
+  background: #2ecc71;
+  color: #1a1a2e;
+  border-color: #2ecc71;
+}
+
+.game-hud__speed-btn--active:hover {
+  background: #27ae60;
+  color: #1a1a2e;
+}
+
+/* Pause button */
+.game-hud__pause-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background: rgba(231, 76, 60, 0.9);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.game-hud__pause-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Lives display with hearts */
+.game-hud__lives {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.game-hud__heart {
+  font-size: 1.2rem;
+  color: #e74c3c;
+  transition: all 0.3s ease;
+}
+
+.game-hud__heart--lost {
+  color: #2c3e50;
+  opacity: 0.5;
+}
+
+.game-hud__heart--damaged {
+  animation: heartPulse 0.5s ease;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* Bottom notifications area */
+.game-hud__notifications {
+  position: absolute;
+  bottom: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.game-hud__notification {
+  background: rgba(26, 26, 46, 0.95);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #2ecc71;
+  color: #ecf0f1;
+  font-weight: 500;
+  animation: notificationSlide 0.3s ease, notificationFade 0.3s ease 2.7s forwards;
+}
+
+@keyframes notificationSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notificationFade {
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Wave announcement */
+.game-hud__wave-announcement {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.game-hud__wave-text {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #e74c3c;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+  animation: waveAnnounce 2s ease forwards;
+}
+
+@keyframes waveAnnounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .game-hud__top-bar {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .game-hud__center-group {
+    position: static;
+    transform: none;
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .game-hud__wave-progress {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-hud__stat-label {
+    display: none;
+  }
+
+  .game-hud__stat-value {
+    font-size: 1rem;
+  }
+
+  .game-hud__stat-icon {
+    font-size: 1.2rem;
+  }
+}
