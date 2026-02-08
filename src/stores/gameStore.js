@@ -115,6 +115,23 @@ export const useGameStore = create(
       });
     },
 
+    // Selected tower (for upgrades/selling)
+    selectedTowerId: null,
+
+    // Select a placed tower
+    selectTower: (towerId) => {
+      set((state) => {
+        state.selectedTowerId = towerId;
+      });
+    },
+
+    // Deselect placed tower
+    deselectTower: () => {
+      set((state) => {
+        state.selectedTowerId = null;
+      });
+    },
+
     // Place a tower
     placeTower: (gridX, gridZ) => {
       const state = get();
@@ -140,6 +157,7 @@ export const useGameStore = create(
           level: 1,
           lastFired: 0,
           targetId: null,
+          rotation: 0,
         });
 
         // Mark grid cell
@@ -408,6 +426,106 @@ export const useGameStore = create(
     // Reset game
     resetGame: () => {
       get().startGame();
+    },
+
+    // Update towers (targeting and firing)
+    updateTowers: (deltaTime, currentTime) => {
+      const state = get();
+      if (!state.isPlaying || state.isPaused) return;
+
+      state.towers.forEach((tower) => {
+        const towerType = TOWER_TYPES[tower.typeId.toUpperCase()];
+        if (!towerType) return;
+
+        // Calculate effective stats based on level
+        const damage = Math.floor(towerType.damage * (1 + (tower.level - 1) * 0.3));
+        const range = towerType.range * (1 + (tower.level - 1) * 0.1);
+        const fireRate = towerType.fireRate * (1 + (tower.level - 1) * 0.05);
+
+        // Check if can fire
+        const timeSinceLastFire = currentTime - tower.lastFired;
+        const fireInterval = 1 / fireRate;
+
+        if (timeSinceLastFire < fireInterval) return;
+
+        // Find target
+        const target = findTarget(tower, range, state.zombies);
+
+        if (target) {
+          // Update tower target and rotation
+          tower.targetId = target.id;
+          const angle = Math.atan2(
+            target.position.z - tower.position.z,
+            target.position.x - tower.position.x
+          );
+          tower.rotation = angle;
+
+          // Fire
+          if (towerType.id === 'freeze') {
+            // Freeze tower applies slow effect
+            get().slowZombie(target.id, towerType.slowFactor, towerType.slowDuration);
+            get().damageZombie(target.id, damage);
+          } else if (towerType.id === 'splash') {
+            // Splash damage - create projectile that will damage multiple
+            get().createProjectile(tower.id, target.id, damage, 15);
+          } else {
+            // Normal projectile
+            get().createProjectile(tower.id, target.id, damage, towerType.id === 'sniper' ? 30 : 20);
+          }
+
+          tower.lastFired = currentTime;
+        } else {
+          tower.targetId = null;
+        }
+      });
+    },
+
+    // Update projectiles
+    updateProjectiles: (deltaTime) => {
+      const state = get();
+
+      state.projectiles.forEach((proj) => {
+        const target = state.zombies.find((z) => z.id === proj.targetId);
+
+        if (!target || target.isDead || target.reachedEnd) {
+          get().removeProjectile(proj.id);
+          return;
+        }
+
+        // Move projectile towards target
+        const dx = target.position.x - proj.position.x;
+        const dz = target.position.z - proj.position.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+
+        if (dist < 0.5) {
+          // Hit target
+          if (proj.isSplash) {
+            // Splash damage - damage all zombies in radius
+            state.zombies.forEach((zombie) => {
+              if (!zombie.isDead && !zombie.reachedEnd) {
+                const zDx = zombie.position.x - target.position.x;
+                const zDz = zombie.position.z - target.position.z;
+                const zDist = Math.sqrt(zDx * zDx + zDz * zDz);
+                if (zDist <= proj.splashRadius) {
+                  const damageMultiplier = 1 - zDist / proj.splashRadius;
+                  get().damageZombie(zombie.id, proj.damage * damageMultiplier);
+                }
+              }
+            });
+          } else {
+            // Single target damage
+            get().damageZombie(target.id, proj.damage);
+          }
+
+          get().removeProjectile(proj.id);
+          return;
+        }
+
+        // Move projectile
+        const moveDistance = proj.speed * deltaTime;
+        proj.position.x += (dx / dist) * moveDistance;
+        proj.position.z += (dz / dist) * moveDistance;
+      });
     },
   }))
 );
