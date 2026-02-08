@@ -7,8 +7,8 @@ import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '../../stores/gameStore';
 import Zombie from './Zombie.jsx';
-import { generateWave, shouldSpawnNextWave } from './WaveSystem.js';
-import { calculateZombieStats } from './ZombieTypes.js';
+import { generateWave } from './WaveSystem.js';
+import { calculateZombieStats, getZombieConfig } from './ZombieTypes.js';
 import { gridToWorld } from '../../utils/math.js';
 
 /**
@@ -40,8 +40,6 @@ export function ZombieManager({
   const isPlaying = useGameStore((state) => state.isPlaying);
   const isPaused = useGameStore((state) => state.isPaused);
   const path = useGameStore((state) => state.path);
-  const wave = useGameStore((state) => state.wave);
-  const startNextWave = useGameStore((state) => state.startNextWave);
 
   // Convert grid path to world coordinates
   const waypoints = convertPathToWorldCoordinates(path);
@@ -55,9 +53,7 @@ export function ZombieManager({
   const zombiesRef = useRef(zombies);
 
   // Get store actions for syncing zombies
-  const spawnZombieInStore = useGameStore((state) => state.spawnZombie);
   const updateZombiePositionInStore = useGameStore((state) => state.updateZombiePosition);
-  const zombieReachedEndInStore = useGameStore((state) => state.zombieReachedEnd);
   const damageZombieInStore = useGameStore((state) => state.damageZombie);
 
   // Keep zombiesRef in sync with zombies state
@@ -140,9 +136,8 @@ export function ZombieManager({
    * Spawn a single zombie
    */
   const spawnZombie = useCallback((typeId) => {
-    const { calculateZombieStats: calcStats, getZombieConfig } = require('./ZombieTypes.js');
     const config = getZombieConfig(typeId);
-    const stats = calcStats(config, currentWaveNumber);
+    const stats = calculateZombieStats(config, currentWaveNumber);
 
     // Use world coordinates from waypoints
     const startPosition = waypoints.length > 0 ? waypoints[0] : { x: 0, y: 0, z: 0 };

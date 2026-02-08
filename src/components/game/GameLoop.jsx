@@ -5,8 +5,8 @@
 import { useRef, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '../../stores/gameStore';
-import { TOWER_TYPES, ZOMBIE_TYPES, CELL_SIZE, GRID_OFFSET } from '../../constants/game';
-import { getDistance, lerpPosition } from '../../utils/math';
+import { TOWER_TYPES, CELL_SIZE } from '../../constants/game';
+import { getDistance } from '../../utils/math';
 
 /**
  * Main game loop component
@@ -18,16 +18,11 @@ export function GameLoop() {
   const isPlaying = useGameStore((state) => state.isPlaying);
   const isPaused = useGameStore((state) => state.isPaused);
   const towers = useGameStore((state) => state.towers);
-  const zombies = useGameStore((state) => state.zombies);
   const projectiles = useGameStore((state) => state.projectiles);
-  const path = useGameStore((state) => state.path);
-  const wave = useGameStore((state) => state.wave);
 
   // Actions
   const damageZombie = useGameStore((state) => state.damageZombie);
   const slowZombie = useGameStore((state) => state.slowZombie);
-  const zombieReachedEnd = useGameStore((state) => state.zombieReachedEnd);
-  const updateZombiePosition = useGameStore((state) => state.updateZombiePosition);
   const createProjectile = useGameStore((state) => state.createProjectile);
   const removeProjectile = useGameStore((state) => state.removeProjectile);
   const updateWave = useGameStore((state) => state.updateWave);
